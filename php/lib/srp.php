@@ -2,14 +2,15 @@
 
 class srp {
 
-    protected $n_base64 = "115b8b692e0e045692cf280b436735c77a5a9e8a9e7ed56c965f87db5b2a2ece3";
+    protected $n_base64 = "dadfccb918e5f651d7a1b851efab43f2c17068c69013e37033347e8da75ca8d8370c26c4fbf1a4aaa4afd9b5ab32343749ee4fbf6fa279856fd7c3ade30ecf2b";
     protected $g = "2";
     protected $hash_alg = "sha256";
     protected $k = "3";
-    
+    protected $rand_length = 128;
+
+
     public function __construct(){
-        //$this->k = $this->dec2base($this->k);
-        $this->k = $this->hash($this->n_base64.$this->g);
+        $this->k = $this->hash($this->n_base64.$this->g);  
     }
     
     /**
@@ -130,8 +131,8 @@ class srp {
      * @param type $length
      * @return type
      */
-    public function getRandomSeed($length = 64) {
-            $result;
+    public function getRandomSeed($length = 0) {
+            $length = $length ?: $this->rand_length;
 
             srand((double) microtime()*1000000);
             $result = "";

@@ -11,10 +11,11 @@
 })(this, function (exports) {
 
     var srp = function(){
-        this.n_base64 = "115b8b692e0e045692cf280b436735c77a5a9e8a9e7ed56c965f87db5b2a2ece3";
+        this.n_base64 = "dadfccb918e5f651d7a1b851efab43f2c17068c69013e37033347e8da75ca8d8370c26c4fbf1a4aaa4afd9b5ab32343749ee4fbf6fa279856fd7c3ade30ecf2b";
         this.g = "2";
         this.hash_alg = "sha256";
         this.k = this.hash(this.n_base64 + this.g);
+        this.rand_length = 128;
     }
 
     srp.prototype.generateX = function(s, username, password){
@@ -84,7 +85,7 @@
     }
 
     srp.prototype.getRandomSeed = function(length){
-        length = length ||64;
+        length = length ||this.rand_length;
 
         return this.bigIntToBase(BigInt.randBigInt(length * 4))
     }
