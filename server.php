@@ -11,7 +11,9 @@ header('Content-Type: application/json');
 
 require './php/lib/srp.php';
 
-if($_REQUEST["phase"] == 0){
+if(!isset($_REQUEST["phase"])){
+    echo json_encode(array("success" => false, "message" => "missing parameters"));
+} elseif($_REQUEST["phase"] == 0){
     //registration: receive I, s, v and save it
     $I = $_REQUEST["I"];
     $s = $_REQUEST["s"];

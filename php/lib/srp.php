@@ -155,7 +155,7 @@ class srp {
      * @param type $B
      * @return type
      */
-    public function generateU($A, $B){
+    protected function generateU($A, $B){
        $U = $this->hash($A.$B);
        
        return $U;
