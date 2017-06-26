@@ -66,14 +66,14 @@
                         var v = this.srp.generateV(x);
                         
                         var data = {phase: 0, I: username, s: s, v: v};
-                        $("#output").append($("<div />").html("SEND: " + JSON.stringify(res.request)));
+                        $("#output").append($("<div />").html("SEND: " + JSON.stringify(data)));
                         $.ajax({
                             url: "server.php",
                             method: 'GET',
                             dataType: 'json',
                             data: data,
                             success: function(res){
-                                $("#output").append($("<div />").html("Receive " + JSON.stringify(res.response)));
+                                $("#output").append($("<div />").html("Receive " + JSON.stringify(res)));
                             }
 
                         })
