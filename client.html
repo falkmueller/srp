@@ -56,60 +56,68 @@
         
         <script type="text/javascript">
             
-              var srp = new srp();
-              
-              $("#btRegistrate").click(function(){
-                    var s = srp.getRandomSeed();
-                    var x = srp.generateX(s, $("#username").val(), $("#password").val());
-                    var v = srp.generateV(x);
-                    $("#output").html("");
+                var demo = {
+                    srp: new srp(),
                     
-                    var data = {phase: 0, I: $("#username").val(), s: s, v: v};
-                    $("#output").append($("<div />").html("SEND: " + JSON.stringify(data)));
-                    
-                    $.ajax({
-                        url: "server.php",
-                        method: 'GET',
-                        dataType: 'json',
-                        data: data,
-                        success: function(res){
-                            $("#output").append($("<div />").html("Receive " + JSON.stringify(res)));
-                        }
+                    registrate: function(username, password){
+                        $("#output").html("");
+                        var s = this.srp.getRandomSeed();
+                        var x = this.srp.generateX(s, username, password);
+                        var v = this.srp.generateV(x);
                         
-                    })
-                  return false;
-              })
-              
-              $("#btLogin").click(function(){
-                  $("#output").html("");
-                 var a = srp.getRandomSeed();
-                 var A = srp.generateA(a);
-                 
-                 var data = {phase: 1, I: $("#username").val(), A: A};
-                 $("#output").append($("<div />").html("SEND: " + JSON.stringify(data)));
-                 $.ajax({
-                        url: "server.php",
-                        method: 'GET',
-                        dataType: 'json',
-                        data: data,
-                        success: function(res){
-                            $("#output").append($("<div />").html("Receive " + JSON.stringify(res)));
-                            
-                            if(!res.success){
-                                $("#output").append($("<div />").html("USER NOT FOUND!"));
-                                return;
-                             }
-                            
-                            var s = res.s;
-                            var B = res.B;
-                            var x = srp.generateX(s, $("#username").val(), $("#password").val());
-                            var S = srp.generateS_Client(A, B, a, x);
-                            var M1  = srp.generateM1(A, B, S);
-                            
-                            var data = {phase: 2, M1: M1};
-                            $("#output").append($("<div />").html("SEND: " + JSON.stringify(data)));
-                 
-                            $.ajax({
+                        var data = {phase: 0, I: username, s: s, v: v};
+                        $("#output").append($("<div />").html("SEND: " + JSON.stringify(res.request)));
+                        $.ajax({
+                            url: "server.php",
+                            method: 'GET',
+                            dataType: 'json',
+                            data: data,
+                            success: function(res){
+                                $("#output").append($("<div />").html("Receive " + JSON.stringify(res.response)));
+                            }
+
+                        })
+                    },
+                    
+                    loginPhase1: function(username, password){
+                        $("#output").html("");
+                        var me = this;
+                        
+                        var a = this.srp.getRandomSeed();
+                        var A = this.srp.generateA(a);
+                        
+                        var data = {phase: 1, I: username, A: A};
+                        $("#output").append($("<div />").html("SEND: " + JSON.stringify(data)));
+                        $.ajax({
+                            url: "server.php",
+                            method: 'GET',
+                            dataType: 'json',
+                            data: data,
+                            success: function(res){
+                                $("#output").append($("<div />").html("Receive " + JSON.stringify(res)));
+                                
+                                if(!res.success){
+                                    $("#output").append($("<div />").html("USER NOT FOUND!"));
+                                    return;
+                                }
+                                
+                                var s = res.s;
+                                var x = me.srp.generateX(s, username, password);
+                                
+                                demo.loginPhase2(a,A, res.B, x);
+                            }
+                        });
+                    },
+                    
+                    loginPhase2: function(a, A, B, x){
+                        var me = this;
+                        
+                        var S = me.srp.generateS_Client(A, B, a, x);
+                        var M1  = me.srp.generateM1(A, B, S);
+                        
+                        var data = {phase: 2, M1: M1};
+                         $("#output").append($("<div />").html("SEND: " + JSON.stringify(data)));
+                         $.ajax({
                                 url: "server.php",
                                 method: 'GET',
                                 dataType: 'json',
@@ -124,20 +132,27 @@
                                     
                                     var M2 = res.M2;
 
-                                    var M2_check = srp.generateM2(A, M1, S);
+                                    var M2_check = me.srp.generateM2(A, M1, S);
                                     
                                     if(M2 == M2_check){
-                                        $("#output").append($("<div />").html("Server verification complete " + srp.generateK(S)));
+                                        $("#output").append($("<div />").html("Server verification complete " + me.srp.generateK(S)));
                                     } else {
                                         $("#output").append($("<div />").html("SERVER NOT VERIFICATED"));
                                     }
                                 }
 
                             })
-                        }
-                        
-                    })
-                  
+                    }
+                    
+                };
+              
+              $("#btRegistrate").click(function(){
+                  demo.registrate($("#username").val(), $("#password").val())
+                  return false;
+              })
+              
+              $("#btLogin").click(function(){
+                  demo.loginPhase1($("#username").val(), $("#password").val());
                   return false;
               })
             
